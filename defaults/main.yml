@@ -20,6 +20,7 @@ nut_unix_group_name: "{{ nut_unix_user_name }}"
 nut_unix_unix_groups: []
 
 nut_package_dependencies: []
+nut_remove_systemd_shutdown_script: false
 
 
 # users

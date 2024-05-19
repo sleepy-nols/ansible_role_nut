@@ -1,11 +1,5 @@
 ---
-#
-# - name: Remove systemd shutdown script
-#   file:
-#     path: /lib/systemd/system-shutdown/nutshutdown
-#     state: absent
-#   when: nut_remove_shutdown_script
-#
+
 - name: Build server and client facts [1/3]
   ansible.builtin.set_fact:
     nut_instance_is_server: "{{ true if nut_ansible_servers_group_name is in group_names else false | bool }}"
@@ -84,4 +78,8 @@
     - "nut-client"
   when: not nut_instance_is_server | bool
 
-
+- name: Remove systemd shutdown script
+  file:
+    path: "/lib/systemd/system-shutdown/nutshutdown"
+    state: absent
+  when: nut_remove_systemd_shutdown_script
