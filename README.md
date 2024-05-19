@@ -2,8 +2,6 @@
 
 Ansible role to install and configure NUT while automatically connecting servers and clients together.
 
-
-
 This role uses the terminology `server` and `client` instead of `master` and `slave`.
 
 
@@ -36,12 +34,6 @@ Host enters configuration mode when:
 **netclient:**
 - the host is in inventory group `[nut_clients]`
 - the host marks a host which is member of inventory group `[nut_servers]` with `nut_server_member=<a_host>`
-
-
-
-
-
-
 
 
 ---
@@ -87,12 +79,43 @@ Example **inventory** file.
 
 ```yml
 # playbooks/nut.yml
+---
+- name: Build variables locally
+  hosts: localhost
+  pre_tasks:
 
+    - name: Prepare variables
+      ansible.builtin.set_fact:
+        nut_server_client_map: {}
+        nut_client_list: []
+
+    - name: block
+      block:
+        - name: Build checks
+          ansible.builtin.set_fact:
+            test: "{% for client in groups['nut_clients'] %}{% if hostvars[client]['nut_server_member'] %}{% endif %}{% endfor %}"
+      rescue:
+        - assert:
+            that: false
+            msg: "A nut client is probably missing the nut_server_member variable."
+#
+    - name: Build server - client tree
+      ansible.builtin.set_fact:
+        nut_server_client_map: "{% for client in groups['nut_clients'] %}{% if hostvars[client]['nut_server_member'] == item %}{% set _ = nut_client_list.append(client) %}{% endif %}{% endfor %}{{ {item: nut_client_list} | combine(nut_server_client_map) }}"
+      loop: "{{ groups['nut_servers']  }}"
+
+    - name: Show server - client tree
+      debug:
+        msg: "{{ nut_server_client_map }}"
+
+- name: "Install and configure NUT on servers and clients"
+  hosts: nut_all
+  roles:
+    - ansible_role_nut
 ```
 Example **playbook**.
 
-
-
+---
 
 ## License
 
