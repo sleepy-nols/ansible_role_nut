@@ -1,3 +1,8 @@
+#
+# {{ ansible_managed }}
+#
+
+
 # Network UPS Tools: example ups.conf
 #
 # --- SECURITY NOTE ---
@@ -137,8 +142,20 @@
 # the -h option and/or read the driver's documentation.
 
 # Set maxretry to 3 by default, this should mitigate race with slow devices:
-maxretry = {{ nut_max_retry }}
 
-{% for device in nut_ups_devices %}
-{{ device }}
+
+# TODO: support overrides etc.
+#       ignorelb
+#       override.battery.charge.low = 80
+
+
+{% for device in nut_ups_devices.keys() %}
+[{{ device }}]
+    driver = {{ nut_ups_devices[device]['driver'] }}
+    port = {{ nut_ups_devices[device]['port'] }}
+    desc = {{ nut_ups_devices[device]['desc'] }}
 {% endfor %}
+
+
+
+

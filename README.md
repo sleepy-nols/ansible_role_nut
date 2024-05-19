@@ -1,55 +1,99 @@
-[![Build Status](https://travis-ci.com/calvinbui/ansible-nut.svg?branch=master)](https://travis-ci.com/calvinbui/ansible-nut)
-![GitHub release](https://img.shields.io/github/release/calvinbui/ansible-nut.svg)
-![Ansible Quality Score](https://img.shields.io/ansible/quality/36575.svg)
-![Ansible Role](https://img.shields.io/ansible/role/d/36575.svg)
-
 # Ansible Network UPS Tools
 
-Running NUT in a VM with other computers connecting as slaves
+Ansible role to install and configure NUT while automatically connecting servers and clients together.
 
-##  Requirements
 
-N/A
 
-## Role Variables
+This role uses the terminology `server` and `client` instead of `master` and `slave`.
 
-`nut_host`: Server where NUT is running
 
-`nut_max_retry`: Maximum reties
+---
 
-`nut_mode`: Recognized values are none, standalone, netserver and netclient. See https://networkupstools.org/docs/man/nut.conf.html
+This role can configure most usecases automatically after configuring some inventory and hostfiles.
 
-`nut_user_master_name`: Username for master user
+What it does:
+- automatic connection of clientsa and servers
+- automatic instance mode selection
+- currently only supports 1 ups per server
 
-`nut_user_master_password`: Password for master user
+Assumptions made:
+- clients can reach server via its default ip address (e.g. local network or vpn)
 
-`nut_user_slave_name`: Username for slave user
+This role configures part of its automation over the Ansible inventory. You need to therefore configure it correct for this role to work. The [example configuration](/#) is a minimum set that needs to exist.
+Client and server devices are seperated into two inventory groups: `[nut_clients]` and `[nut_servers]`. Accordingly client hosts should be present in the inventory group `[nut_clients]` and server hosts in `[nut_server]`.
 
-`nut_user_slave_password`: Password for slave user
 
-`nut_ups_devices`: List of UPS devices. Used to configure `ups.conf`
+Host enters configuration mode when:
 
-`nut_ups_monitors`: List of UPS devices to monitor. Used to configure `upsmon.conf`
+**standalone:**
+- the host is in inventory group `[nut_servers]`
+- no host that is member of inventory group `[nut_clients]` marks the host as `nut_server_member=<the_host>`
 
-`nut_ups_listen`: List of interfaces to listen on. Used for `upsd.conf`
+**netserver:**
+- the host is in inventory group `[nut_servers]`
+- one ore more hosts that are member of inventory group `[nut_clients]` mark the host as `nut_server_member=<the_host>`
 
-## Dependencies
+**netclient:**
+- the host is in inventory group `[nut_clients]`
+- the host marks a host which is member of inventory group `[nut_servers]` with `nut_server_member=<a_host>`
 
-N/A
 
-## Example Playbook
 
-```yaml
-- hosts: servers
-  become: true
-  roles:
-   - role: calvinbui.ansible_nut
+
+
+
+
+
+---
+
+## Example configuration
+
+```yml
+# inventory/host_vars/nut-server01.yml
+nut_ups_devices:
+  mydevice: # <-- unique device identifyer
+    driver: "usbhid-ups" # https://networkupstools.org/stable-hcl.html
+    port: "auto"
+    desc: "some description"
 ```
+Example **server** hostvars file.
+
+
+```yml
+# inventory/host_vars/nut-client01.yml
+
+
+```
+Example **client** hostvars file.
+
+
+```yml
+# inventory/nut
+
+[nut_all:children]
+nut_servers
+nut_clients
+
+[nut_servers]
+nut-server01 nut_master_password="secretpassword"
+
+[nut_clients]
+nut-client01 nut_server_member="nut-server01" nut_password="secretpassword"
+nut-client02 nut_server_member="nut-server01" nut_password="secretpassword"
+
+```
+Example **inventory** file.
+
+
+```yml
+# playbooks/nut.yml
+
+```
+Example **playbook**.
+
+
+
 
 ## License
 
 GPLv3
-
-## Author Information
-
-http://calvin.me

@@ -1,9 +1,63 @@
 ---
+# MUST CONFIGURE
+nut_ups_devices:
+  "myups":
+    driver: "usbhid-ups"
+    port: "auto"
+    desc: "mydescription"
+    # sdorder: ""
+    # nolock: ""
+    # maxstartdelay: ""
+    # synchronous: ""
 
-nut_host: localhost
-nut_max_retry: 3
-nut_mode: netserver
-nut_remove_shutdown_script: true
+# idk
+nut_remove_shutdown_script: false
+
+
+# general
+nut_unix_user_name: "nut"
+nut_unix_group_name: "{{ nut_unix_user_name }}"
+nut_unix_unix_groups: []
+
+nut_package_dependencies: []
+
+
+# users
+nut_master_username: "{{ inventory_hostname }}"
+nut_master_password: foo
+
+nut_username: "{{ inventory_hostname }}"
+nut_password: foo
+
+
+# ups-monitor
+nut_upsmon_unix_user_name: "upsmon"
+nut_upsmon_unix_group_name: "{{ nut_upsmon_unix_user_name }}"
+nut_upsmon_unix_groups: []
+nut_upsmon_minsupplies: 0
+nut_upsmon_shutdowncmd: "/sbin/shutdown -h +0"
+# NOTIFYCMD
+# POLLFREQ: 5
+# POLLFREQALERT: 5
+# HOSTSYNC: 15
+# DEADTIME: 15
+# POWERDOWNFLAG
+# NOTIFYMSG:
+#   complex strucutre
+# RBWARNTIME: 43200
+# NOCOMMWARNTIME: 300
+# FINALDELAY: 5
+# CERTPATH
+# CERTIDENT
+# CERTHOST
+# CERTVERIFY
+# FORCESSL
+
+
+# instance info
+nut_server_ipv4: "{{ hostvars[nut_instance_member_of_server]['ansible_default_ipv4']['address'] }}"
+nut_powervalue: 1
+
 
 nut_user_master_name: monuser
 nut_user_master_password: monpassword
@@ -11,13 +65,18 @@ nut_user_master_password: monpassword
 nut_user_slave_name: monuserslave
 nut_user_slave_password: monslavepassword
 
-nut_ups_devices:
-  - |
-    [OR600ELCDRM1U]
-      driver = usbhid-ups
-      port   = auto
-      ignorelb
-      override.battery.charge.low = 80
+# ansible
+nut_ansible_servers_group_name: "nut_servers"
+nut_ansible_clients_group_name: "nut_clients"
+
+#
+# nut_ups_devices:
+#   - |
+#     [OR600ELCDRM1U]
+#       driver = usbhid-ups
+#       port   = auto
+#       ignorelb
+#       override.battery.charge.low = 80
 
 nut_ups_monitors:
   - "MONITOR OR600ELCDRM1U@localhost 1 {{ nut_user_master_name }} {{ nut_user_master_password }} master"

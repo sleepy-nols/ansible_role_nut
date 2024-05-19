@@ -1,11 +1,48 @@
 ---
-
-- name: Restart NUT
+- name: Restart nut-driver
   service:
-    name: "{{ item }}"
+    name: "nut-driver"
     state: restarted
-  with_items:
-    - nut-driver
-    - nut-monitor
-    - nut-server
   become: true
+  listen:
+    - restart_nut_server
+    - restart_nut_driver_service
+  ignore_errors: true
+
+- name: Restart nut-server
+  service:
+    name: "nut-server"
+    state: restarted
+  become: true
+  listen:
+    - restart_nut_server
+    - restart_nut_server_service
+
+- name: Restart nut-monitor
+  service:
+    name: "nut-monitor"
+    state: restarted
+  become: true
+  listen:
+    - restart_nut_client
+    - restart_nut_server
+    - restart_nut_monitor_service
+
+- name: Restart nut-client
+  service:
+    name: "nut-client"
+    state: restarted
+  become: true
+  listen:
+    - restart_nut_client
+    - restart_nut_server
+    - restart_nut_client_service
+
+# - name: Restart nut-driver-enumerator
+#   service:
+#     name: "nut-driver-enumerator"
+#     state: restarted
+#   become: true
+#   listen:
+#     - restart_nut_all
+#     - restart_nut_driver_enumerator

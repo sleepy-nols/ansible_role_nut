@@ -1,3 +1,8 @@
+#
+# {{ ansible_managed }}
+#
+
+
 # Network UPS Tools: Example upsd.users
 #
 # This file sets the permissions for upsd - the UPS network daemon.
@@ -71,12 +76,23 @@
 #
 # MONITOR myups@localhost 1 upsmon pass master  (or slave)
 
-[{{ nut_user_master_name }}]
-  password = {{ nut_user_master_password }}
-  actions = SET FSD
-  instcmds = ALL
+# master client on server
+[{{ nut_master_username }}]
+  password = {{ hostvars[inventory_hostname]['nut_master_password'] }}
   upsmon master
 
-[{{ nut_user_slave_name }}]
-  password = {{ nut_user_slave_password }}
+
+{% for client in nut_server_clients %}
+[{{ hostvars[client]['nut_username'] | default(client) }}]
+  password = {{ hostvars[client]['nut_password'] }}
   upsmon slave
+
+{% endfor %}
+
+
+  # password =
+  # actions = SET FSD
+  # instcmds = ALL
+  # upsmon master
+
+

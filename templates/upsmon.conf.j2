@@ -1,3 +1,8 @@
+#
+# {{ ansible_managed }}
+#
+
+
 # Network UPS Tools: example upsmon configuration
 #
 # This file contains passwords, so keep it secure.
@@ -28,6 +33,8 @@
 # This user should not have write access to upsmon.conf.
 #
 # RUN_AS_USER nut
+
+RUN_AS_USER {{ nut_upsmon_unix_user_name }}
 
 # --------------------------------------------------------------------------
 # MONITOR <system> <powervalue> <username> <password> ("master"|"slave")
@@ -82,9 +89,22 @@
 # MONITOR myups@bigserver 1 monmaster blah master
 # MONITOR su700@server.example.com 1 upsmon secretpass slave
 # MONITOR myups@localhost 1 upsmon pass master  (or slave)
-{% for monitors in nut_ups_monitors %}
-{{ monitors }}
+# MONITOR <system> <powervalue> <username> <password> ("master"|"slave")
+
+{% if nut_instance_is_server | bool %}
+# master connection to localhost
+{% for device in nut_ups_devices.keys() %}
+MONITOR {{ device }}@localhost {{ nut_powervalue }} {{ nut_master_username }} {{ nut_master_password }} master
+
 {% endfor %}
+{% else %}
+# slave connection to server
+{% for device in hostvars[nut_instance_member_of_server]['nut_ups_devices'].keys() %}
+MONITOR {{ device }}@{{ nut_server_ipv4 }} {{ nut_powervalue }} {{ nut_username }} {{ nut_password }} slave
+{% endfor%}
+
+{% endif %}
+
 # --------------------------------------------------------------------------
 # MINSUPPLIES <num>
 #
@@ -101,7 +121,7 @@
 # for this to make sense!  See big-servers.txt in the docs subdirectory
 # for more information and ideas on how to use this feature.
 
-MINSUPPLIES 0
+MINSUPPLIES {{ nut_upsmon_minsupplies }}
 
 # --------------------------------------------------------------------------
 # SHUTDOWNCMD "<command>"
@@ -110,7 +130,7 @@ MINSUPPLIES 0
 #
 # This should work just about everywhere ... if it doesn't, well, change it.
 
-# SHUTDOWNCMD "/sbin/shutdown -h +0"
+SHUTDOWNCMD "{{ nut_upsmon_shutdowncmd }}"
 
 # --------------------------------------------------------------------------
 # NOTIFYCMD <command>
@@ -151,7 +171,7 @@ POLLFREQ 5
 #
 # The default is 5 seconds for both this and POLLFREQ.
 
-POLLFREQALERT 5
+POLLFREQALERT 2
 
 # --------------------------------------------------------------------------
 # HOSTSYNC - How long upsmon will wait before giving up on another upsmon

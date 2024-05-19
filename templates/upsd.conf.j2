@@ -1,3 +1,8 @@
+#
+# {{ ansible_managed }}
+#
+
+
 # Network UPS Tools: example upsd configuration file
 #
 # This file contains access control data, you should keep it secure.
@@ -106,5 +111,14 @@
 #
 # See 'docs/security.txt' or the Security chapter of NUT user manual
 # for more information on the SSL support in NUT.
+#
+# LISTEN 127.0.0.1 3493
+# LISTEN {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }} 3493
+# LISTEN ::1 3493
 
-{{ nut_ups_listen }}
+{% if nut_mode == 'standalone' %}
+LISTEN 127.0.0.1 3493
+{% elif nut_mode == 'netserver' %}
+LISTEN 0.0.0.0 3493
+LISTEN ::1 3493
+{% endif %}

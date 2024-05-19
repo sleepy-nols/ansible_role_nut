@@ -1,38 +1,87 @@
 ---
+#
+# - name: Remove systemd shutdown script
+#   file:
+#     path: /lib/systemd/system-shutdown/nutshutdown
+#     state: absent
+#   when: nut_remove_shutdown_script
+#
+- name: Build server and client facts [1/3]
+  ansible.builtin.set_fact:
+    nut_instance_is_server: "{{ true if nut_ansible_servers_group_name is in group_names else false | bool }}"
+    nut_instance_member_of_server: "{{ hostvars[inventory_hostname]['nut_server_member'] | default('localhost') }}"
+    nut_server_client_map: "{{ hostvars['localhost']['nut_server_client_map'] }}"
 
-- name: Install nut
+
+- name: Build server facts [2/3]
+  ansible.builtin.set_fact:
+    nut_server_is_standalone: "{{ true if nut_server_client_map[inventory_hostname] == [] else false | bool }}"
+    nut_server_clients: "{{ nut_server_client_map[inventory_hostname] }}"
+  when: nut_instance_is_server | bool
+
+- name: Build server and client facts [3/3]
+  ansible.builtin.set_fact:
+    nut_mode: "{% if nut_instance_is_server | bool %}{% if nut_server_is_standalone | bool %}standalone{% else %}netserver{% endif %}{% else %}netclient{% endif %}"
+
+- name: Display instance information
+  debug:
+    msg:
+    - "Incstance IPv4 adress: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+    - "Instance is server: {{ nut_instance_is_server }}"
+
+- name: Prepare the host
+  ansible.builtin.include_tasks: prepare_host.yml
+
+- name: Configure server and client
+  ansible.builtin.include_tasks: configure.yml
+
+- name: Install nut-client and nut-server
   apt:
-    name: nut
+    name:
+      - nut-client
+      - nut-server
     state: present
-    update_cache: true
-    cache_valid_time: 3600
-  become: true
-  register: result
-  until: result is success
-  retries: 5
-  delay: 5
+  when: nut_instance_is_server | bool
 
-- name: Force systemd to reload itself
-  systemd:
-    daemon_reload: true
+- name: Install nut-client
+  apt:
+    name:
+      - nut-client
+    state: present
+  when: not nut_instance_is_server | bool
 
-- name: Install NUT configuration files.
-  template:
-    src: "{{ item }}.j2"
-    dest: "/etc/nut/{{ item }}"
-    owner: root
-    group: nut
-    mode: 0640
-  with_items:
+- name: Remove .dpkg-dist config files
+  file:
+    path: "/etc/nut/{{ item }}.dpkg-dist"
+    state: absent
+  loop:
     - ups.conf
     - upsd.conf
     - upsd.users
     - upsmon.conf
+    - upssched.conf
     - nut.conf
-  notify: Restart NUT
 
-- name: Remove systemd shutdown script
-  file:
-    path: /lib/systemd/system-shutdown/nutshutdown
-    state: absent
-  when: nut_remove_shutdown_script
+- name: Enable and start NUT services for servers
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - "nut-monitor"
+    - "nut-server"
+    - "nut-driver"
+    - "nut-client"
+  when: nut_instance_is_server | bool
+
+- name: Enable and start NUT services for clients
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - "nut-monitor"
+    - "nut-client"
+  when: not nut_instance_is_server | bool
+
+
