@@ -1,13 +1,13 @@
 # Ansible Network UPS Tools
 
-Ansible role to install and configure NUT while automatically connecting servers and clients together.
+Ansible role to install and configure [NUT](https://networkupstools.org) on Debian-like systems, plus automatically connecting servers and clients together.
+
+This role configures part of its automation over the Ansible inventory. You need to therefore configure it correct for this role to work. The [example configuration](/#) is a minimum set that needs to exist.
 
 This role uses the terminology `server` and `client` instead of `master` and `slave`.
 
 
 ---
-
-This role can configure most usecases automatically after configuring some inventory and hostfiles.
 
 What it does:
 - automatic connection of clientsa and servers
@@ -17,7 +17,7 @@ What it does:
 Assumptions made:
 - clients can reach server via its default ip address (e.g. local network or vpn)
 
-This role configures part of its automation over the Ansible inventory. You need to therefore configure it correct for this role to work. The [example configuration](/#) is a minimum set that needs to exist.
+
 Client and server devices are seperated into two inventory groups: `[nut_clients]` and `[nut_servers]`. Accordingly client hosts should be present in the inventory group `[nut_clients]` and server hosts in `[nut_server]`.
 
 
@@ -49,15 +49,8 @@ nut_ups_devices:
     desc: "some description"
 ```
 Example **server** hostvars file.
-
-
-```yml
-# inventory/host_vars/nut-client01.yml
-
-
-```
-Example **client** hostvars file.
-
+<br>
+<br>
 
 ```yml
 # inventory/nut
@@ -74,7 +67,9 @@ nut-client01 nut_server_member="nut-server01" nut_password="secretpassword"
 nut-client02 nut_server_member="nut-server01" nut_password="secretpassword"
 
 ```
-Example **inventory** file.
+Example **inventory** file. Variables can alternatively be set in hostvars.
+<br>
+<br>
 
 
 ```yml
@@ -114,6 +109,8 @@ Example **inventory** file.
     - ansible_role_nut
 ```
 Example **playbook**.
+<br>
+<br>
 
 ---
 
