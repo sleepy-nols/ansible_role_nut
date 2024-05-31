@@ -6,7 +6,6 @@
     nut_instance_member_of_server: "{{ hostvars[inventory_hostname]['nut_server_member'] | default('localhost') }}"
     nut_server_client_map: "{{ hostvars['localhost']['nut_server_client_map'] }}"
 
-
 - name: Build server facts [2/3]
   ansible.builtin.set_fact:
     nut_server_is_standalone: "{{ true if nut_server_client_map[inventory_hostname] == [] else false | bool }}"
