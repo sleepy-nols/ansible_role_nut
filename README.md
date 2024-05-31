@@ -1,5 +1,11 @@
 # Ansible Network UPS Tools
 
+<a href="https://github.com/sleepy-nols/ansible_role_nut/actions/workflows/ansible-lint.yml">
+<img alt="ansible-lint" src="https://github.com/sleepy-nols/ansible_role_nut/actions/workflows/ansible-lint.yml/badge.svg"/>
+</a>
+
+<br><br>
+
 Ansible role to install and configure [NUT](https://networkupstools.org) on Debian-like systems, plus automatically connecting servers and clients together.
 
 This role configures part of its automation over the Ansible inventory. You need to therefore configure it correct for this role to work. The [example configuration](/#) is a minimum set that needs to exist.
