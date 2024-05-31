@@ -99,7 +99,7 @@ Example **inventory** file. Variables can alternatively be set in hostvars.
         - assert:
             that: false
             msg: "A nut client is probably missing the nut_server_member variable."
-#
+
     - name: Build server - client tree
       ansible.builtin.set_fact:
         nut_server_client_map: "{% for client in groups['nut_clients'] %}{% if hostvars[client]['nut_server_member'] == item %}{% set _ = nut_client_list.append(client) %}{% endif %}{% endfor %}{{ {item: nut_client_list} | combine(nut_server_client_map) }}"
