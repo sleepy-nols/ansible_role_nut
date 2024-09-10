@@ -120,6 +120,10 @@ Example **playbook**.
 
 ---
 
+## Related
+
+Ansible Role - Prometheus NUT Exporter https://gitlab.com/sleepy_nols/ansible_role_nut_exporter/
+
 ## License
 
 GPLv3
