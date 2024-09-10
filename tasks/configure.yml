@@ -41,4 +41,3 @@
     - upsd.users
   notify: restart_nut_client
   when: not nut_instance_is_server | bool
-

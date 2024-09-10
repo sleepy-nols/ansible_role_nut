@@ -1,17 +1,16 @@
 ---
 galaxy_info:
   role_name: nut
-  authors:
-    - calvinbui
-    - nols
+  author: sleepy_nols
   description: Network UPS Tools (NUT) for Ubuntu
-  min_ansible_version: 2.15
+  min_ansible_version: "2.16"
   platforms:
-    - name: debian
+    - name: Debian
       versions:
-        - buster
-        - bullseye
-        - bookworm
+        - all
+    - name: Ubuntu
+      versions:
+        - all
   galaxy_tags:
     - nut
     - ups

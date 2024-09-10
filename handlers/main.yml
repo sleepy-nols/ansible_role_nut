@@ -7,7 +7,7 @@
   listen:
     - restart_nut_server
     - restart_nut_driver_service
-  ignore_errors: true
+  failed_when: false
 
 - name: Restart nut-server
   service:
