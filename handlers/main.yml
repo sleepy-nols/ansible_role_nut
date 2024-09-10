@@ -1,7 +1,7 @@
 ---
 - name: Restart nut-driver
-  service:
-    name: "nut-driver"
+  ansible.builtin.service:
+    name: nut-driver
     state: restarted
   become: true
   listen:
@@ -10,8 +10,8 @@
   failed_when: false
 
 - name: Restart nut-server
-  service:
-    name: "nut-server"
+  ansible.builtin.service:
+    name: nut-server
     state: restarted
   become: true
   listen:
@@ -19,8 +19,8 @@
     - restart_nut_server_service
 
 - name: Restart nut-monitor
-  service:
-    name: "nut-monitor"
+  ansible.builtin.service:
+    name: nut-monitor
     state: restarted
   become: true
   listen:
@@ -29,8 +29,8 @@
     - restart_nut_monitor_service
 
 - name: Restart nut-client
-  service:
-    name: "nut-client"
+  ansible.builtin.service:
+    name: nut-client
     state: restarted
   become: true
   listen:

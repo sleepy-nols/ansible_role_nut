@@ -1,42 +1,41 @@
 ---
 - name: Install package dependencies
-  apt:
+  ansible.builtin.apt:
     name: "{{ nut_package_dependencies }}"
     state: present
   become: true
 
 - name: Make upsmon unix user group
-  group:
+  ansible.builtin.group:
     name: "{{ nut_upsmon_unix_group_name }}"
     state: present
 
 - name: Make upsmon unix user
-  user:
+  ansible.builtin.user:
     name: "{{ nut_upsmon_unix_user_name }}"
     state: present
     group: "{{ nut_upsmon_unix_group_name }}"
     groups: "{{ nut_upsmon_unix_groups if nut_unix_unix_groups != [] else omit }}"
-    shell: "/sbin/nologin"
+    shell: /sbin/nologin
 
 - name: Make nut unix user group
-  group:
+  ansible.builtin.group:
     name: "{{ nut_unix_group_name }}"
     state: present
 
 - name: Make nut unix user
-  user:
+  ansible.builtin.user:
     name: "{{ nut_unix_user_name }}"
     state: present
     group: "{{ nut_unix_group_name }}"
     groups: "{{ nut_unix_unix_groups if nut_unix_unix_groups != [] else omit }}"
-    shell: "/sbin/nologin"
+    shell: /sbin/nologin
     # shell: "/bin/bash" # for debugging
 
 - name: Make nut config dir
-  file:
-    path: "/etc/nut"
+  ansible.builtin.file:
+    path: /etc/nut
     state: directory
-    owner: "root"
+    owner: root
     group: "{{ nut_unix_group_name }}"
     mode: "0755"
-
